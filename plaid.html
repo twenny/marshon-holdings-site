@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- REQUIRED: the bank OAuth redirect carries OAuth state in the URL.
+     no-referrer stops that state leaking via the Referer header on any
+     subsequent request. -->
+<meta name="referrer" content="no-referrer">
+<!-- Restrictive CSP (Cyra spec). Scripts limited to same-origin + Plaid's
+     CDN loader; no 'unsafe-inline' for scripts (the OAuth-return logic is
+     the same-origin file plaid-handoff.js). No analytics/tag-manager of
+     any kind. connect/frame limited to Plaid domains. -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'none';
+  base-uri 'none';
+  form-action 'none';
+  script-src 'self' https://cdn.plaid.com;
+  style-src 'self' 'unsafe-inline';
+  img-src 'self';
+  connect-src https://*.plaid.com;
+  frame-src https://cdn.plaid.com https://*.plaid.com;
+">
+<title>Account connection — Marshon Holdings, LLC</title>
+<meta name="description" content="Bank connection handoff page for the Marshon Holdings private financial dashboard.">
+<meta name="robots" content="noindex">
+<style>
+  :root {
+    --ground: #0b0f16; --panel: #10161f; --ink: #eef3f7; --ink-soft: #9fb0c0;
+    --azure: #1b9bd1; --teal: #22c4c4; --line: rgba(255,255,255,0.08);
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --ground: #f7f8fa; --panel: #ffffff; --ink: #0e2033; --ink-soft: #566677;
+      --azure: #1580b3; --teal: #159a9a; --line: rgba(14,58,94,0.12);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font: 16px/1.7 system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    display: flex; flex-direction: column; min-height: 100vh;
+  }
+  .wrap { flex: 1; width: 100%; max-width: 560px; margin: 0 auto; padding: 72px 24px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .top img { width: 56px; height: 56px; margin-bottom: 24px; }
+  .rule { height: 3px; width: 44px; background: linear-gradient(90deg, var(--teal), var(--azure)); border-radius: 2px; margin: 0 0 28px; }
+  h1 { font-size: 26px; font-weight: 600; margin: 0 0 10px; }
+  p { margin: 0 0 14px; color: var(--ink-soft); max-width: 46ch; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 28px 26px; margin-top: 8px; }
+  strong { color: var(--ink); }
+  footer {
+    text-align: center; padding: 24px; font-size: 13px; color: var(--ink-soft);
+    border-top: 1px solid var(--line);
+  }
+  footer a { color: var(--ink-soft); text-decoration: none; }
+  footer a:hover { color: var(--azure); }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="top">
+      <img src="assets/logo.png" alt="Marshon Holdings logo">
+    </div>
+    <div class="rule" aria-hidden="true"></div>
+    <div class="panel">
+      <!-- Default/fallback content. plaid-handoff.js swaps in the
+           OAuth-continuation state only when it detects oauth_state_id. -->
+      <h1 id="headline">Connection complete</h1>
+      <p id="message">Your account connection is being finalized. You can
+        <strong>close this tab</strong> and return to the dashboard setup on
+        your machine.</p>
+      <p id="submessage">This page collects no information, sets no cookies,
+        and uses no tracking.</p>
+    </div>
+  </main>
+  <footer>
+    Marshon Holdings, LLC · <a href="index.html">marshon.holdings</a> · <a href="privacy.html">Privacy</a>
+  </footer>
+
+  <!-- SOLE external script: Plaid's official Link loader. Intentionally no
+       SRI (Plaid rotates this URL; SRI would break it) — pinned via the
+       CSP script-src above instead. -->
+  <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+  <!-- Same-origin OAuth-return logic. Contains NO secret, NO client_id, and
+       NO public_token->access_token exchange (that happens only on the
+       local machine, via the op-loaded secret). -->
+  <script src="plaid-handoff.js"></script>
+</body>
+</html>
